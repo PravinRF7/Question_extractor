@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/PravinRF7/Question_extractor.git'
+                git branch: 'main', url: 'https://github.com/PravinRF7/Question_extractor.git'
             }
         }
 
