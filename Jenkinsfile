@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'ocr-question-extractor'
+        CONTAINER_NAME = 'ocr_app'
         DOCKER_HUB_USERNAME = 'your_dockerhub_username'
     }
 
@@ -25,9 +26,18 @@ pipeline {
             }
         }
 
+        stage('Clean Old Container') {
+            steps {
+                bat """
+                docker stop %CONTAINER_NAME% || exit 0
+                docker rm %CONTAINER_NAME% || exit 0
+                """
+            }
+        }
+
         stage('Run Docker Container') {
             steps {
-                bat "docker run -d -p 3000:3000 --name ocr_app %IMAGE_NAME%"
+                bat "docker run -d -p 3000:3000 --name %CONTAINER_NAME% %IMAGE_NAME%"
             }
         }
     }
