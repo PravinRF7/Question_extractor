@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🧠 OCR Question Extractor</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; padding: 20px; }
+    input, button { margin-top: 10px; }
+    #output { margin-top: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>Upload Your Quiz PDF</h2>
+  <input type="file" id="pdfFile" accept=".pdf" />
+  <button onclick="uploadFile()">Upload & Extract</button>
+  <button onclick="downloadExcel()">📥 Download as Excel</button>
+
+  <div id="output"></div>
+
+  <script>
+    let extractedData = [];
+
+async function uploadFile() {
+  const fileInput = document.getElementById('pdfFile');
+  const file = fileInput.files[0];
+  if (!file) return alert('Please select a PDF file.');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/upload', {
+    method: 'POST',
+    body: formData
+  });
+
+  const result = await response.json();
+  extractedData = result; // Save data globally
+
+  const output = document.getElementById('output');
+  output.innerHTML = JSON.stringify(result, null, 2);
+  }
+
+  async function downloadExcel() {
+    if (extractedData.length === 0) {
+      return alert('Please extract questions first.');
+    }
+
+    const response = await fetch('/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(extractedData)
+    });
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = 'questions.xlsx';
+    link.click();
+  }
+
+  </script>
+</body>
+</html>
